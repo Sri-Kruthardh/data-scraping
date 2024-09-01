@@ -1,0 +1,18 @@
+[project]
+name = "web-scraping"
+version = "0.1.0"
+description = "Default template for PDM package"
+authors = [
+    {name = "Sri Kruthardh Peddada", email = "kruthardh@gmail.com"},
+]
+dependencies = [
+    "requests>=2.32.3",
+    "influxdb-client>=1.45.0",
+]
+requires-python = "==3.12.*"
+readme = "README.md"
+license = {text = "MIT"}
+
+
+[tool.pdm]
+distribution = false
