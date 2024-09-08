@@ -1,5 +1,5 @@
 [project]
-name = "web-scraping"
+name = "data-scraping"
 version = "0.1.0"
 description = "Default template for PDM package"
 authors = [
@@ -8,6 +8,7 @@ authors = [
 dependencies = [
     "requests>=2.32.3",
     "influxdb-client>=1.45.0",
+    "paramiko",
 ]
 requires-python = "==3.12.*"
 readme = "README.md"
