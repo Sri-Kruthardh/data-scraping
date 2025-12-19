@@ -11,7 +11,7 @@ Our script uses simple requests module to get bitcoin rate in USD
 in UTC time. the data is then stored in local influx db which is
 optimal to save time series data.
 
-### Entsoe transparency data
+### Entsoe transparency data (sftp is deprecated)
 We are using paramiko library to create a sftp client to entsoe website
 to get intraday capacity data from sftp server. we are using sqlite3
 to store the data into the database.
