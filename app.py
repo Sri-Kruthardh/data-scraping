@@ -1,4 +1,9 @@
 import sys
+from log_setup import log_setup
+import logging
+
+logger = logging.getLogger(__name__)
+log_setup()
 
 # bitcoin imports
 # from src.bitcoin.bitcoin import run as bitcoin_run
@@ -8,8 +13,8 @@ import sys
 # from src.entsoe.sftp import run as entsoe_run
 # from src.databases.sqlite3_setup import insert_data_sqlite
 
-from log_setup import log_setup
-
+# books to scrape imports
+from src.databases.sqlite3_connection import SQLiteConnection
 
 def app():
     choice = sys.argv
