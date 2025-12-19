@@ -1,8 +1,8 @@
 import sys
 
 # bitcoin imports
-from src.web_scraping.bitcoin.bitcoin import run as bitcoin_run
-from src.databases.influx import insert_data_into_db
+# from src.bitcoin.bitcoin import run as bitcoin_run
+# from src.databases.influx import insert_data_into_db
 
 #entsoe imports
 from src.web_scraping.entsoe.sftp import run as entsoe_run
@@ -14,9 +14,9 @@ from log_setup import log_setup
 def app():
     choice = sys.argv
     match choice[1]:
-        case 'bitcoin':
-            datapoint = bitcoin_run()
-            insert_data_into_db(datapoint)
+        # case 'bitcoin':
+        #     datapoint = bitcoin_run()
+        #     insert_data_into_db(datapoint)
         case 'entsoe':
             data = entsoe_run()
             insert_data_sqlite(data)
