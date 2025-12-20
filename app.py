@@ -14,17 +14,20 @@ log_setup()
 # from src.databases.sqlite3_setup import insert_data_sqlite
 
 # books to scrape imports
-from src.databases.sqlite3_connection import SQLiteConnection
+from src.databases.sqlite3_connection import setup_catalogue_data
+from src.web_scraping.bookstoscrape.scraper import scraper
 
 def app():
     choice = sys.argv
-    # match choice[1]:
+    match choice[1]:
         # case 'bitcoin':
         #     datapoint = bitcoin_run()
         #     insert_data_into_db(datapoint)
         # case 'entsoe':
         #     data = entsoe_run()
         #     insert_data_sqlite(data)
+        case 'bookstoscrape':
+            setup_catalogue_data(scraper())
 
 
 
