@@ -44,3 +44,16 @@ def setup_catalogue_data(data):
         cursor = db.cursor()
         create_catalogue_table(cursor)
         insert_catalogue_data(data,cursor)
+
+def get_genre_data(genre):
+    q = f"""
+    SELECT name, url FROM book_catalogue where name = '{genre}'
+    """
+    with SQLiteConnection() as db:
+        cur = db.cursor()
+        result = cur.execute(q).fetchall()
+        if result:
+            return result
+        else:
+            logger.warning(f"Genre {genre} does not exist.")
+            return

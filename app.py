@@ -3,7 +3,6 @@ from log_setup import log_setup
 import logging
 
 logger = logging.getLogger(__name__)
-log_setup()
 
 # bitcoin imports
 # from src.bitcoin.bitcoin import run as bitcoin_run
@@ -15,9 +14,10 @@ log_setup()
 
 # books to scrape imports
 from src.databases.sqlite3_connection import setup_catalogue_data
-from src.web_scraping.bookstoscrape.scraper import scraper
+from src.web_scraping.bookstoscrape.scraper import scraper, genre_scraper
 
 def app():
+    logger.info("Starting web scraping application..")
     choice = sys.argv
     match choice[1]:
         # case 'bitcoin':
@@ -27,8 +27,17 @@ def app():
         #     data = entsoe_run()
         #     insert_data_sqlite(data)
         case 'bookstoscrape':
-            setup_catalogue_data(scraper())
+            logger.info("Choice selected: bookstoscrape")
+            if choice[2] == 'catalogue':
+                logger.info("Proceeding to scrape list of catalogues..")
+                setup_catalogue_data(scraper())
+            elif choice[2] == 'genre':
+                if choice[3]:
+                    genre_scraper(choice[3])
+                    logger.info(f"Proceeding to scrape genre specific data. Selected genre: {choice[3]}")
 
+                else:
+                    logger.warning("No genre is specified. Proceeding to scrape all genres")
 
 
 if __name__ == '__main__':
