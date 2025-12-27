@@ -80,6 +80,19 @@ def get_genre_data(genre):
             logger.warning(f"Genre {genre} does not exist.")
             return
 
+def get_all_genres():
+    q = f"""
+    SELECT name, url FROM book_catalogue
+    """
+    with SQLiteConnection() as db:
+        cur = db.cursor()
+        result = cur.execute(q).fetchall()
+        if result:
+            return result
+        else:
+            logger.warning(f"Data missing from book_catalogue table")
+            return
+
 
 def save_books_data(li):
     with SQLiteConnection() as db:

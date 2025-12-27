@@ -2,7 +2,7 @@ from bs4 import BeautifulSoup
 import requests
 import logging
 
-from src.databases.sqlite3_connection import get_genre_data
+from src.databases.sqlite3_connection import get_genre_data, get_all_genres
 
 logger = logging.getLogger(__name__)
 
@@ -31,16 +31,11 @@ def scraper():
     else:
         logger.error(f'Unable to capture data due to reason:-{resp.status_code}:{resp.reason}')
 
-
-def genre_scraper(genre):
-    data = get_genre_data(genre)
-    if not data:
-        raise ValueError("Genre doesn't exist in our database.")
-    url = data[0][1]
-    resp = requests.get(url,verify=False)
+def scrape_books(url):
+    resp = requests.get(url, verify=False)
     if resp.status_code == 200:
         # Find all article tags from the body
-        soup = BeautifulSoup(resp.text,'html')
+        soup = BeautifulSoup(resp.text, 'html')
         body = soup.body
         articles = body.find_all('article')
         li = []
@@ -59,3 +54,19 @@ def genre_scraper(genre):
 
     else:
         logger.error(f'Unable to capture data due to reason:-{resp.status_code}:{resp.reason}')
+
+def genre_scraper(genre):
+    data = get_genre_data(genre)
+    if not data:
+        raise ValueError("Genre doesn't exist in our database.")
+    url = data[0][1]
+    return scrape_books(url)
+
+
+def all_books_scraper():
+    genre_list = get_all_genres()
+    li =[]
+    for genre in genre_list:
+        logger.info(f"Proceeding to scrape for genre: {genre[0]}")
+        li.extend(scrape_books(genre[1]))
+    return li
