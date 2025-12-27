@@ -7,6 +7,14 @@ from src.databases.sqlite3_connection import get_genre_data
 logger = logging.getLogger(__name__)
 
 
+WORD_TO_NUMBER = {
+    'One': 1,
+    'Two': 2,
+    'Three': 3,
+    'Four': 4,
+    'Five': 5
+}
+
 def scraper():
     url = 'https://books.toscrape.com/'
     resp = requests.get(url,verify=False)
@@ -31,10 +39,23 @@ def genre_scraper(genre):
     url = data[0][1]
     resp = requests.get(url,verify=False)
     if resp.status_code == 200:
+        # Find all article tags from the body
         soup = BeautifulSoup(resp.text,'html')
         body = soup.body
-        child = [i for i in body.children if i!= '\n'][1]
-        list_of_books = [i for i in child.children if i!= '\n'][0]
-        print(list_of_books)
+        articles = body.find_all('article')
+        li = []
+
+        # Scrape books data and return the list
+        for i in articles:
+            paragraphs = i.find_all('p')
+            dic = {
+                'name': i.h3.a['title'],
+                'rating': WORD_TO_NUMBER[paragraphs[0]['class'][1]],
+                'price': paragraphs[1].string[2:],
+                'availability': paragraphs[2].get_text().strip()
+            }
+            li.append(dic)
+        return li
+
     else:
         logger.error(f'Unable to capture data due to reason:-{resp.status_code}:{resp.reason}')

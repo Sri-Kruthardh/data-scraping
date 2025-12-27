@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 # from src.databases.sqlite3_setup import insert_data_sqlite
 
 # books to scrape imports
-from src.databases.sqlite3_connection import setup_catalogue_data
+from src.databases.sqlite3_connection import setup_catalogue_data, save_books_data
 from src.web_scraping.bookstoscrape.scraper import scraper, genre_scraper
 
 def app():
@@ -33,11 +33,11 @@ def app():
                 setup_catalogue_data(scraper())
             elif choice[2] == 'genre':
                 if choice[3]:
-                    genre_scraper(choice[3])
                     logger.info(f"Proceeding to scrape genre specific data. Selected genre: {choice[3]}")
-
+                    save_books_data(genre_scraper(choice[3]))
                 else:
                     logger.warning("No genre is specified. Proceeding to scrape all genres")
+                    # save_books_data(all_books_scraper())
 
 
 if __name__ == '__main__':

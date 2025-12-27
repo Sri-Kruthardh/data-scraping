@@ -29,10 +29,32 @@ def create_catalogue_table(cursor):
     cursor.execute(q)
     logger.info('book_catalogue table created if it doesnt exist')
 
+def create_books_table(cursor):
+    q = f"""
+        CREATE TABLE IF NOT EXISTS books(
+        id INTEGER PRIMARY KEY,
+        name TEXT NOT NULL UNIQUE,
+        price TEXT NOT NULL,
+        availability TEXT NOT NULL,
+        rating INTEGER
+        );
+        """
+    cursor.execute(q)
+    logger.info('books table created if it doesnt exist')
+
 def insert_catalogue_data(rows, cursor):
     rows = [(k,v) for k,v in rows.items()]
     q = f"""
         INSERT INTO book_catalogue (name,url) VALUES (?, ?)
+        ON CONFLICT DO NOTHING
+        """
+    result = cursor.executemany(q,rows)
+    logger.info(f'inserted {result.rowcount} rows into the table...')
+
+def insert_books_data(cursor, data):
+    rows = [(i['name'], i['price'], i['availability'], i['rating']) for i in data]
+    q = f"""
+        INSERT INTO books (name,price,availability,rating) VALUES (?, ?, ?, ?)
         ON CONFLICT DO NOTHING
         """
     result = cursor.executemany(q,rows)
@@ -57,3 +79,10 @@ def get_genre_data(genre):
         else:
             logger.warning(f"Genre {genre} does not exist.")
             return
+
+
+def save_books_data(li):
+    with SQLiteConnection() as db:
+        cursor = db.cursor()
+        create_books_table(cursor)
+        insert_books_data(cursor, li)
