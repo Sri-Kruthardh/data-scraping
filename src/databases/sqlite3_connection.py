@@ -15,7 +15,7 @@ class SQLiteConnection:
         return self.connection
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        if exc_type is not None:
+        if exc_type is None:
             self.connection.close()
             logger.info('Connection closed.')
 
@@ -100,3 +100,54 @@ def save_books_data(li):
         cursor = db.cursor()
         create_books_table(cursor)
         insert_books_data(cursor, li)
+
+
+def get_book_url(name=None):
+    if not name:
+        q = f"""SELECT book_detail_url FROM books;"""
+    else:
+        q = f"""SELECT book_detail_url FROM books where name = '{name}'"""
+    with SQLiteConnection() as db:
+        cur = db.cursor()
+        result = cur.execute(q).fetchall()
+        if result:
+            return result
+        else:
+            logger.warning(f"Book: {name} does not exist in our database.")
+            return
+
+def save_book_details(li):
+    with SQLiteConnection() as db:
+        cursor = db.cursor()
+        create_books_detail_table(cursor)
+        insert_books_detail_data(cursor, li)
+
+def create_books_detail_table(cursor):
+    q = f"""
+        CREATE TABLE IF NOT EXISTS book_details(
+        id INTEGER PRIMARY KEY,
+        book_name TEXT NOT NULL UNIQUE,
+        currency TEXT NOT NULL,
+        upc TEXT NOT NULL,
+        product_type TEXT NOT NULL,
+        price_tax_excluded REAL NOT NULL,
+        price_tax_included REAL NOT NULL,
+        tax REAL NOT NULL,
+        available_quantity INTEGER NOT NULL,
+        review_count INTEGER NOT NULL,
+        FOREIGN KEY (book_name) REFERENCES books(name)
+        );
+        """
+    cursor.execute(q)
+    logger.info('book_details table created if it didnt exist')
+
+def insert_books_detail_data(cursor,data):
+    rows = [(i['book_name'], i['currency'], i['UPC'], i['Product Type'], i['Price (excl. tax)'],
+             i['Price (incl. tax)'],i['Tax'],i['Availability'],i['Number of reviews']) for i in data]
+    q = f"""
+        INSERT INTO book_details (book_name, currency, upc, product_type, price_tax_excluded, price_tax_included,
+        tax, available_quantity, review_count) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ON CONFLICT DO NOTHING
+        """
+    result = cursor.executemany(q,rows)
+    logger.info(f'inserted {result.rowcount} rows into the table...')

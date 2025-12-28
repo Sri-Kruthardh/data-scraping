@@ -1,10 +1,12 @@
 from bs4 import BeautifulSoup
 import requests
 import logging
+import urllib3
 
-from src.databases.sqlite3_connection import get_genre_data, get_all_genres
+from src.databases.sqlite3_connection import get_genre_data, get_all_genres, get_book_url
 
 logger = logging.getLogger(__name__)
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 
 WORD_TO_NUMBER = {
@@ -70,4 +72,37 @@ def all_books_scraper():
     for genre in genre_list:
         logger.info(f"Proceeding to scrape for genre: {genre[0]}")
         li.extend(scrape_books(genre[1]))
+    return li
+
+def book_detail_scraper(name=None):
+    if not name:
+        result = get_book_url()
+    else:
+        name = name.replace('_', ' ').replace("'","''")
+        result = get_book_url(name)
+    li = []
+    for url in result:
+        logger.info(f'Scraping for url: {url[0]}')
+        resp = requests.get(url[0], verify=False)
+        if resp.status_code == 200:
+            # Find all article tags from the body
+            soup = BeautifulSoup(resp.text, 'html')
+            body = soup.body
+            table = body.find_all('table')[0]
+            dic = dict()
+            dic['book_name'] = body.h1.string
+            dic['currency'] = '£'
+            for i in table.children:
+                if i == '\n':
+                    continue
+                if i.th.string in ('Price (excl. tax)', 'Price (incl. tax)', 'Tax'):
+                    dic[i.th.string] = float(i.td.string[2:])
+                elif i.th.string in ('Availability','Number of reviews'):
+                    dic[i.th.string] = int(i.td.string.replace("In stock (", "").replace(" available)", ""))
+                else:
+                    dic[i.th.string] = i.td.string
+            li.append(dic)
+        else:
+            logger.error(f'Unable to capture data due to reason:-{resp.status_code}:{resp.reason}')
+            raise
     return li
