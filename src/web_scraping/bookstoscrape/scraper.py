@@ -47,7 +47,8 @@ def scrape_books(url):
                 'name': i.h3.a['title'],
                 'rating': WORD_TO_NUMBER[paragraphs[0]['class'][1]],
                 'price': paragraphs[1].string[2:],
-                'availability': paragraphs[2].get_text().strip()
+                'availability': paragraphs[2].get_text().strip(),
+                'book_detail_url': 'https://books.toscrape.com/catalogue/' + i.a['href'][9:]
             }
             li.append(dic)
         return li

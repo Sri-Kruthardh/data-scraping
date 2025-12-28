@@ -36,7 +36,8 @@ def create_books_table(cursor):
         name TEXT NOT NULL UNIQUE,
         price TEXT NOT NULL,
         availability TEXT NOT NULL,
-        rating INTEGER
+        rating INTEGER,
+        book_detail_url TEXT NOT NULL
         );
         """
     cursor.execute(q)
@@ -52,9 +53,9 @@ def insert_catalogue_data(rows, cursor):
     logger.info(f'inserted {result.rowcount} rows into the table...')
 
 def insert_books_data(cursor, data):
-    rows = [(i['name'], i['price'], i['availability'], i['rating']) for i in data]
+    rows = [(i['name'], i['price'], i['availability'], i['rating'], i['book_detail_url']) for i in data]
     q = f"""
-        INSERT INTO books (name,price,availability,rating) VALUES (?, ?, ?, ?)
+        INSERT INTO books (name,price,availability,rating,book_detail_url) VALUES (?, ?, ?, ?, ?)
         ON CONFLICT DO NOTHING
         """
     result = cursor.executemany(q,rows)
